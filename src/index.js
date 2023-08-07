@@ -10,6 +10,7 @@ const elements = {
 };
 
 let searchNamePhoto = '';
+let pageNumber = 0;
 
 // параметри для Intersection Observer
 let options = {
@@ -50,6 +51,7 @@ function onSubmitForm(event) {
   searchPhoto(searchNamePhoto, page, perPage)
     .then(data => {
       const arrPhotos = data.hits;
+      pageNumber = Math.ceil(data.totalHits / perPage);
       if (data.totalHits === 0) {
         Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
@@ -110,11 +112,15 @@ function createMarkup(arr) {
 function loadMore(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
+      if (pageNumber === 1) {
+        observer.unobserve(elements.btnLoadMore);
+        return;
+      }
       page += 1;
       searchPhoto(searchNamePhoto, page, perPage)
         .then(data => {
           const arrPhotos = data.hits;
-          const pageNumber = Math.ceil(data.totalHits / perPage);
+          // pageNumber = Math.ceil(data.totalHits / perPage);
 
           createMarkup(arrPhotos);
 
